@@ -1,5 +1,5 @@
 <template>
   <div>
-    我是后台布局
+    菜单区域
   </div>
 </template>

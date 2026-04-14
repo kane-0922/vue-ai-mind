@@ -1,10 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import BackendLayout from '@/components/BackendLayout.vue'
+import BackendLayout from '@/views/layout/BackendLayout.vue'
 // 路由配置
 const backendRoutes = [
   {
     path: '/back',
-    component: BackendLayout
+    component: BackendLayout,
+    children: [
+      {
+        path: 'dashboard',
+        component: () => import('@/views/dashboard/Dashboard.vue')
+      }
+    ]
   }
 ]
 
