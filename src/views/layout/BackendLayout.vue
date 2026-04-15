@@ -11,8 +11,8 @@ import Navbar from './components/Navbar.vue'
         <el-header>
           <Navbar></Navbar>
         </el-header>
-        <el-main>
-          <router-view></router-view>
+        <el-main class="main-content">
+          <router-view class="content-container"></router-view>
         </el-main>
       </el-container>
     </el-container>
@@ -22,6 +22,10 @@ import Navbar from './components/Navbar.vue'
 <style lang="scss" scoped>
 .backend-layout {
   height: 100vh;
+
+  .el-header {
+    height: 74px !important;
+  }
 
   .main-container {
     height: 100%;
