@@ -11,8 +11,6 @@ const router = useRouter()
 
 const isCollapse = computed(() => adminStore.isCollapse)
 
-
-
 const selectMenu = (key) => {
   const currentRoute = router.options.routes[0]
   router.push(`${currentRoute.path}/${key.index}`)
