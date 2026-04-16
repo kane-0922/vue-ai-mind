@@ -1,15 +1,23 @@
 <script setup>
+import { useAdminStore } from '@/stores/admin'
+
+const adminStore = useAdminStore()
+
 const handleCommand = (command) => {
   if (command === 'logout') {
     // 处理退出登录逻辑
   }
+}
+
+const handleCollapse = () => {
+  adminStore.toggleCollapse()
 }
 </script>
 
 <template>
   <div class="navbar">
     <div class="flex-box">
-      <el-button>
+      <el-button @click="handleCollapse">
         <el-icon>
           <Expand />
         </el-icon>
