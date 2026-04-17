@@ -33,12 +33,19 @@ const handleSearch = async (formData) => {
   }
   const { records, total } = await articlePage(params)
   tableData.value = records
+  pagination.total = total
 }
 
 // 分类映射
 const categoryMap = reactive({})
 // 分类列表
 const categories = ref([])
+
+const handleChange = (page) => {
+  pagination.currentPage = page
+  handleSearch()
+}
+
 onMounted(async () => {
   const data = await getCategoryTree()
   categories.value = data.map(item => {
@@ -50,7 +57,7 @@ onMounted(async () => {
   })
   formItem[1].options = categories.value
 
-  // 初始化查询
+  // 初始化列表
   handleSearch()
 })
 </script>
@@ -96,5 +103,7 @@ onMounted(async () => {
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination style="margin-top: 25px;" layout="prev, pager, next" :total="pagination.total"
+      :page-size="pagination.size" @change="handleChange" />
   </div>
 </template>
