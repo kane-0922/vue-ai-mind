@@ -16,8 +16,23 @@ const formItem = [
   }
 ]
 
-const handleSearch = (formData) => {
-  console.log(formData)
+// 分页参数
+const pagination = reactive({
+  currentPage: 1,
+  size: 10,
+  total: 0
+})
+
+// 文章列表
+const tableData = ref([])
+
+const handleSearch = async (formData) => {
+  const params = {
+    ...pagination,
+    ...formData
+  }
+  const { records, total } = await articlePage(params)
+  tableData.value = records
 }
 
 // 分类映射
@@ -34,6 +49,9 @@ onMounted(async () => {
     }
   })
   formItem[1].options = categories.value
+
+  // 初始化查询
+  handleSearch()
 })
 </script>
 
@@ -45,5 +63,38 @@ onMounted(async () => {
       </template>
     </PageHead>
     <TableSearch :formItem="formItem" @search="handleSearch" />
+    <el-table :data="tableData" style="width: 100%; margin-top: 25px;">
+      <el-table-column label="文章标题" fixed="left" width="200">
+        <template #default="scope">
+          <div style="display: flex; align-items: center;">
+            <el-icon>
+              <Timer />
+            </el-icon>
+            <span>{{ scope.row.title }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="分类">
+        <template #default="scope">
+          <div style="display: flex; align-items: center;">
+            <el-icon>
+              <Timer />
+            </el-icon>
+            <span>{{ categoryMap[scope.row.categoryId] }}</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="作者" prop="authorName" width="150" />
+      <el-table-column label="阅读量" prop="readCount" width="150" />
+      <el-table-column label="发布时间" prop="publishedAt" width="150" />
+      <el-table-column label="操作" width="240" fixed="right">
+        <template #default="scope">
+          <el-button text type="primary">编辑</el-button>
+          <el-button v-if="scope.row.status === 0 || scope.row.status === 2" text type="success">发布</el-button>
+          <el-button v-if="scope.row.status === 1" text type="warning">下线</el-button>
+          <el-button text type="danger">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
   </div>
 </template>
