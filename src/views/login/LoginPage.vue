@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { login } from '@/api/admin'
+import { useRouter } from 'vue-router'
 
 const ruleFormRef = ref()
 const formData = reactive({
@@ -17,6 +18,7 @@ const rules = reactive({
 })
 
 // 登录
+const router = useRouter()
 const submitForm = async (formEl) => {
   if (!formEl) return
   await formEl.validate(async (valid) => {
@@ -29,6 +31,12 @@ const submitForm = async (formEl) => {
       } else {
         localStorage.setItem('token', data.token)
         localStorage.setItem('userInfo', JSON.stringify(data.userInfo))
+        // 根据用户角色决定跳转路径
+        if (data.userInfo.userType === 2) {
+          router.push('/back/dashboard')
+        } else {
+
+        }
       }
     } else {
       // 登录失败
