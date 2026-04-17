@@ -1,5 +1,6 @@
 <script setup>
 import { ref, reactive } from 'vue'
+import { login } from '@/api/admin'
 
 const ruleFormRef = ref()
 const formData = reactive({
@@ -18,9 +19,17 @@ const rules = reactive({
 // 登录
 const submitForm = async (formEl) => {
   if (!formEl) return
-  await formEl.validate((valid) => {
+  await formEl.validate(async (valid) => {
     if (valid) {
+      console.log(formData, 'formData')
       // 登录成功
+      const data = await login(formData)
+      if (!data.token) {
+        return console.error('登录失败')
+      } else {
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('userInfo', JSON.stringify(data.userInfo))
+      }
     } else {
       // 登录失败
     }
@@ -52,7 +61,7 @@ const submitForm = async (formEl) => {
           </el-form-item>
           <el-button class="btn" size="large" type="primary" @click="submitForm(ruleFormRef)">登录</el-button>
           <el-form-item class="footer">
-            <p>还没有账户？<router-link to="/register">去注册</router-link></p>
+            <p>还没有账户？<router-link to="/auth/register">去注册</router-link></p>
           </el-form-item>
         </el-form>
       </div>
