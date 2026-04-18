@@ -3,6 +3,7 @@ import { ref, reactive, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { uploadFile } from '@/api/admin'
 import { fileBaseUrl } from '@/config/index.js'
+import RichTextEditor from './RichTextEditor.vue'
 
 const props = defineProps({
   modelValue: {
@@ -47,6 +48,7 @@ const rules = reactive({
   ],
   categoryId: [{ required: true, message: '请选择分类', trigger: 'change' }]
 })
+const formRef = ref(null)
 
 const commonTags = [
   '情绪管理',
@@ -95,7 +97,9 @@ const handleRemove = () => {
   formData.coverImage = ''
 }
 
-const formRef = ref(null)
+// 富文本
+const handleContentChange = () => {}
+const handleEditorCreated = () => {}
 </script>
 
 <template>
@@ -161,6 +165,16 @@ const formRef = ref(null)
             <el-button type="danger" size="mini" @click="handleRemove">移除封面</el-button>
           </div>
         </div>
+      </el-form-item>
+      <el-form-item label="文章内容" prop="content">
+        <RichTextEditor
+          v-model="formData.content"
+          placeholder="请输入文章内容，支持富文本格式"
+          :maxChartCount="5000"
+          @change="handleContentChange"
+          @created="handleEditorCreated"
+          min-height="400px"
+        />
       </el-form-item>
     </el-form>
   </el-dialog>

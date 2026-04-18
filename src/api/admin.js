@@ -21,7 +21,7 @@ export const uploadFile = (file, businessInfo) => {
   formData.append('file', file)
   formData.append('businessType', 'ARTICLE')
   formData.append('businessId', businessInfo.businessId)
-  formData.append('businessfild', 'cover')
+  formData.append('businessField', 'cover')
   return request.post('/file/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
