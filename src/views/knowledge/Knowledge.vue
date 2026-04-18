@@ -54,6 +54,10 @@ const handleChange = (page) => {
 // 弹窗是否显示
 const dialogVisible = ref(false)
 
+const handleSuccess = () => {
+  handleSearch()
+}
+
 onMounted(async () => {
   const data = await getCategoryTree()
   categories.value = data.map((item) => {
@@ -101,7 +105,7 @@ onMounted(async () => {
       </el-table-column>
       <el-table-column label="作者" prop="authorName" width="150" />
       <el-table-column label="阅读量" prop="readCount" width="150" />
-      <el-table-column label="发布时间" prop="publishedAt" width="150" />
+      <el-table-column label="发布时间" prop="updatedAt" width="150" />
       <el-table-column label="操作" width="240" fixed="right">
         <template #default="scope">
           <el-button text type="primary">编辑</el-button>
@@ -120,6 +124,10 @@ onMounted(async () => {
       :page-size="pagination.size"
       @change="handleChange"
     />
-    <ArticleDialog v-model:modelValue="dialogVisible" :categories="categories" />
+    <ArticleDialog
+      v-model:modelValue="dialogVisible"
+      :categories="categories"
+      @success="handleSuccess"
+    />
   </div>
 </template>

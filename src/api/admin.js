@@ -28,3 +28,7 @@ export const uploadFile = (file, businessInfo) => {
     }
   })
 }
+
+export const createArticle = (data) => {
+  return request.post('/knowledge/article', data)
+}
