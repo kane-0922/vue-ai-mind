@@ -73,3 +73,8 @@ export const getEmotionalPage = (params) => {
 export const deleteEmotional = (id) => {
   return request.delete(`/emotion-diary/admin/${id}`)
 }
+
+// 获取综合数据分析
+export const getAnalysisOverview = () => {
+  return request.get('/data-analytics/overview')
+}
