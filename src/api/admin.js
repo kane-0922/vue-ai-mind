@@ -68,3 +68,8 @@ export const getSessionDetail = (sessionId) => {
 export const getEmotionalPage = (params) => {
   return request.get('/emotion-diary/admin/page', { params })
 }
+
+// 删除情绪日志
+export const deleteEmotional = (id) => {
+  return request.delete(`/emotion-diary/admin/${id}`)
+}
