@@ -53,3 +53,8 @@ export const changeArticleStatus = (id, data) => {
 export const deleteArticle = (id) => {
   return request.delete(`/knowledge/article/${id}`)
 }
+
+// 获取咨询记录列表
+export const getConsultationPage = (params) => {
+  return request.get('/psychological-chat/sessions', { params })
+}
