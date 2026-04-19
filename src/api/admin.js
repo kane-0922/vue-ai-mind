@@ -43,3 +43,13 @@ export const getArticleDetail = (id) => {
 export const updateArticle = (id, data) => {
   return request.put(`/knowledge/article/${id}`, data)
 }
+
+// 更新文章状态
+export const changeArticleStatus = (id, data) => {
+  return request.put(`/knowledge/article/${id}/status`, data)
+}
+
+// 删除文章
+export const deleteArticle = (id) => {
+  return request.delete(`/knowledge/article/${id}`)
+}
