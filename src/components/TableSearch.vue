@@ -1,6 +1,4 @@
 <script setup>
-import { ElInput, ElSelect } from 'element-plus'
-import 'element-plus/dist/index.css'
 import { ref, reactive, computed } from 'vue'
 
 const props = defineProps({
@@ -13,7 +11,7 @@ const emit = defineEmits(['search'])
 
 const formItemAttrs = computed(() => {
   const { formItem } = props
-  formItem.forEach(item => {
+  formItem.forEach((item) => {
     item.col = { xs: 24, sm: 12, md: 8, lg: 6, xl: 6 }
   })
   return formItem
@@ -21,8 +19,8 @@ const formItemAttrs = computed(() => {
 
 const isComp = (comp) => {
   return {
-    input: ElInput,
-    select: ElSelect
+    input: 'ElInput',
+    select: 'ElSelect'
   }[comp]
 }
 
@@ -48,10 +46,19 @@ const handleReset = (formEl) => {
       <template v-for="item in formItemAttrs" :key="item.prop">
         <el-col v-bind="item.col">
           <el-form-item :label="item.label" :prop="item.prop">
-            <component v-model="formData[item.prop]" :is="isComp(item.comp)" :placeholder="item.placeholder">
+            <component
+              v-model="formData[item.prop]"
+              :is="isComp(item.comp)"
+              :placeholder="item.placeholder"
+            >
               <template v-if="item.comp === 'select'">
                 <el-option label="全部" value="" />
-                <el-option v-for="opt in item.options" :key="opt.value" :value="opt.value" :label="opt.label" />
+                <el-option
+                  v-for="opt in item.options"
+                  :key="opt.value"
+                  :value="opt.value"
+                  :label="opt.label"
+                />
               </template>
             </component>
           </el-form-item>

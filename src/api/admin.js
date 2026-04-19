@@ -63,3 +63,8 @@ export const getConsultationPage = (params) => {
 export const getSessionDetail = (sessionId) => {
   return request.get(`/psychological-chat/sessions/${sessionId}/messages`)
 }
+
+// 获取情绪日志列表
+export const getEmotionalPage = (params) => {
+  return request.get('/emotion-diary/admin/page', { params })
+}
