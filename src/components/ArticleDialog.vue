@@ -4,7 +4,7 @@ import { ElMessage } from 'element-plus'
 import { uploadFile } from '@/api/admin'
 import { fileBaseUrl } from '@/config/index.js'
 import RichTextEditor from './RichTextEditor.vue'
-import { createArticle } from '@/api/admin.js'
+import { createArticle, updateArticle } from '@/api/admin.js'
 
 const props = defineProps({
   modelValue: {
@@ -70,6 +70,7 @@ const formData = reactive({
   tags: '',
   id: ''
 })
+// 规则配置
 const rules = reactive({
   title: [
     { required: true, message: '请输入文章标题', trigger: 'blur' },
@@ -81,7 +82,7 @@ const rules = reactive({
     { min: 1, message: '文章内容至少1个字符', trigger: 'blur' }
   ]
 })
-
+// 标签选项
 const commonTags = [
   '情绪管理',
   '焦虑',
@@ -130,7 +131,7 @@ const handleRemove = () => {
   formData.coverImage = ''
 }
 
-// 富文本
+// 富文本编辑器
 const handleContentChange = (data) => {
   formData.content = data.html
 }
@@ -145,12 +146,12 @@ const handleEditorCreated = (editor) => {
   }
 }
 
+// 定义预览按钮初始状态
 const btnPreview = ref(false)
 
 // 提交
 const formRef = ref()
 const loading = ref(false)
-
 const handleSubmit = () => {
   formRef.value.validate((valid, fields) => {
     if (valid) {
@@ -162,10 +163,18 @@ const handleSubmit = () => {
       tags: formData.tagArray.join(',')
     }
     delete submitData.tagArray
-    createArticle(submitData).then((res) => {
-      loading.value = false
-      emit('success')
-    })
+    if (!isEdit.value) {
+      submitData.id = businessId.value
+      createArticle(submitData).then(() => {
+        loading.value = false
+        emit('success')
+      })
+    } else {
+      updateArticle(props.article.id, submitData).then(() => {
+        loading.value = false
+        emit('success')
+      })
+    }
   })
 }
 </script>

@@ -38,3 +38,8 @@ export const createArticle = (data) => {
 export const getArticleDetail = (id) => {
   return request.get(`/knowledge/article/${id}`)
 }
+
+// 更新知识文章
+export const updateArticle = (id, data) => {
+  return request.put(`/knowledge/article/${id}`, data)
+}

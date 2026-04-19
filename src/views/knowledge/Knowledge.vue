@@ -55,7 +55,10 @@ const handleChange = (page) => {
 // 弹窗是否显示
 const dialogVisible = ref(false)
 const currentArticle = ref(null)
-const handleSuccess = () => {}
+const handleSuccess = () => {
+  dialogVisible.value = false
+  handleSearch()
+}
 const handleEdit = async (row) => {
   if (!row.id) {
     // 新增文章
@@ -79,7 +82,6 @@ onMounted(async () => {
     }
   })
   formItem[1].options = categories.value
-
   // 初始化列表
   handleSearch()
 })
