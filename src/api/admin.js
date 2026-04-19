@@ -29,6 +29,12 @@ export const uploadFile = (file, businessInfo) => {
   })
 }
 
+// 发布文章
 export const createArticle = (data) => {
   return request.post('/knowledge/article', data)
+}
+
+// 获取文章详情
+export const getArticleDetail = (id) => {
+  return request.get(`/knowledge/article/${id}`)
 }

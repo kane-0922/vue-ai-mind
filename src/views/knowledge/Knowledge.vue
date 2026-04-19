@@ -4,6 +4,7 @@ import TableSearch from '@/components/TableSearch.vue'
 import { getCategoryTree, articlePage } from '@/api/admin'
 import { onMounted, ref, reactive } from 'vue'
 import ArticleDialog from '@/components/ArticleDialog.vue'
+import { getArticleDetail } from '@/api/admin'
 
 const formItem = [
   { comp: 'input', prop: 'title', label: '文章标题', placeholder: '请输入文章标题' },
@@ -53,9 +54,19 @@ const handleChange = (page) => {
 
 // 弹窗是否显示
 const dialogVisible = ref(false)
-
-const handleSuccess = () => {
-  handleSearch()
+const currentArticle = ref(null)
+const handleSuccess = () => {}
+const handleEdit = async (row) => {
+  if (!row.id) {
+    // 新增文章
+    currentArticle.value = null
+    dialogVisible.value = true
+  } else {
+    // 编辑文章
+    const res = await getArticleDetail(row.id)
+    currentArticle.value = res
+    dialogVisible.value = true
+  }
 }
 
 onMounted(async () => {
@@ -78,7 +89,7 @@ onMounted(async () => {
   <div>
     <PageHead title="知识文章">
       <template #buttons>
-        <el-button @click="dialogVisible = true" type="primary">新增</el-button>
+        <el-button @click="handleEdit({})" type="primary">新增</el-button>
       </template>
     </PageHead>
     <TableSearch :formItem="formItem" @search="handleSearch" />
@@ -108,7 +119,7 @@ onMounted(async () => {
       <el-table-column label="发布时间" prop="updatedAt" width="150" />
       <el-table-column label="操作" width="240" fixed="right">
         <template #default="scope">
-          <el-button text type="primary">编辑</el-button>
+          <el-button text type="primary" @click="handleEdit(scope.row)">编辑</el-button>
           <el-button v-if="scope.row.status === 0 || scope.row.status === 2" text type="success">
             发布
           </el-button>
@@ -127,6 +138,7 @@ onMounted(async () => {
     <ArticleDialog
       v-model:modelValue="dialogVisible"
       :categories="categories"
+      :article="currentArticle"
       @success="handleSuccess"
     />
   </div>
