@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import PageHead from '@/components/PageHead.vue'
-import { getConsultationPage } from '@/api/admin'
+import { getConsultationPage, getSessionDetail } from '@/api/admin'
 
 const tableData = ref([])
 const pagination = reactive({
@@ -19,7 +19,19 @@ const handleSearch = async () => {
 }
 
 // 查看详情
-const viewSessionDetail = (row) => {}
+const showDetailDialog = ref(false)
+const sessionDetail = ref({})
+const sessionMessages = ref([])
+const loadingMessages = ref(false)
+const viewSessionDetail = (row) => {
+  showDetailDialog.value = true
+  loadingMessages.value = true
+  getSessionDetail(row.id).then((res) => {
+    loadingMessages.value = false
+    sessionMessages.value = res
+    sessionDetail.value = row
+  })
+}
 
 // 分页
 const handleChange = (page) => {
@@ -35,6 +47,7 @@ onMounted(async () => {
 <template>
   <div>
     <PageHead title="咨询记录" />
+    <!-- 咨询记录表格 -->
     <el-table :data="tableData" style="width: 100%">
       <el-table-column label="会话ID" width="100">
         <template #default="scope">
@@ -51,10 +64,13 @@ onMounted(async () => {
       <el-table-column prop="lastMessageTime" label="时间" width="100" />
       <el-table-column label="操作按钮" width="100">
         <template #default="scope">
-          <el-button @click="viewSessionDetail(scope.row)" text size="mini">详情</el-button>
+          <el-button @click="viewSessionDetail(scope.row)" type="primary" text size="mini"
+            >详情</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
+    <!-- 分页组件 -->
     <el-pagination
       style="margin-top: 25px"
       layout="prev, pager, next"
@@ -62,10 +78,59 @@ onMounted(async () => {
       :page-size="pagination.size"
       @change="handleChange"
     />
+    <!-- 咨询会话详情弹窗 -->
+    <el-dialog
+      v-model="showDetailDialog"
+      title="咨询会话详情"
+      width="70%"
+      :close-on-click-modal="false"
+    >
+      <!-- 咨询会话详情内容 -->
+      <div class="session-detail">
+        <div class="detail-header">
+          <div class="detail-row">
+            <div class="detail-label">用户</div>
+            <div class="detail-value">{{ sessionDetail.userNickname }}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">开始时间</div>
+            <div class="detail-value">{{ sessionDetail.startAt }}</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">消息数</div>
+            <div class="detail-value">{{ sessionDetail.messageCount }}</div>
+          </div>
+        </div>
+        <div class="messages-container">
+          <div class="messages-header">
+            <h4>对话记录</h4>
+          </div>
+          <div class="messages-list" v-loading="loadingMessages">
+            <div
+              v-for="item in sessionMessages"
+              :key="item.id"
+              class="message-item"
+              :class="item.senderType === 1 ? 'user-message' : 'ai-message'"
+            >
+              <div class="message-header">
+                <span class="sender">
+                  {{ item.senderType === 1 ? '用户' : 'AI助手' }}
+                </span>
+                <span class="time">{{ item.createdAt }}</span>
+              </div>
+              <div class="message-content">{{ item.content }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <el-button @click="showDetailDialog = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .session-title {
   font-weight: 500;
   color: #333;

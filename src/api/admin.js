@@ -58,3 +58,8 @@ export const deleteArticle = (id) => {
 export const getConsultationPage = (params) => {
   return request.get('/psychological-chat/sessions', { params })
 }
+
+// 获取会话消息列表
+export const getSessionDetail = (sessionId) => {
+  return request.get(`/psychological-chat/sessions/${sessionId}/messages`)
+}
