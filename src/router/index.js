@@ -112,9 +112,26 @@ router.beforeEach((to, from, next) => {
       } else {
         next('/back/dashboard')
       }
+    } else if (userInfo.userType === 1) {
+      if (to.path.startsWith('/auth') || to.path.startsWith('/back')) {
+        next('/')
+      } else {
+        next()
+      }
+    } else {
+      if (to.path.startsWith('/back')) {
+        next('/auth/login')
+      } else {
+        next()
+      }
     }
   } else {
-    next()
+    // 未登录用户只能访问登录、注册页面和前台页面
+    if (to.path.startsWith('/auth') || (to.path.startsWith('/') && !to.path.startsWith('/back'))) {
+      next()
+    } else {
+      next('/auth/login')
+    }
   }
 })
 
