@@ -6,6 +6,7 @@ import AuthLayout from '@/views/layout/AuthLayout.vue'
 const backendRoutes = [
   {
     path: '/back',
+    redirect: '/back/dashboard',
     component: BackendLayout,
     children: [
       {
@@ -67,6 +68,25 @@ const backendRoutes = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: backendRoutes
+})
+
+// 路由前置守卫
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token')
+  // 当前用户是否登录
+  if (token) {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'))
+    // 如果是后台用户
+    if (userInfo.userType === 2) {
+      if (to.path.startsWith('/back')) {
+        next()
+      } else {
+        next('/back/dashboard')
+      }
+    }
+  } else {
+    next()
+  }
 })
 
 export default router

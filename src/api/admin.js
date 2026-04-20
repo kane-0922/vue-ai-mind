@@ -78,3 +78,8 @@ export const deleteEmotional = (id) => {
 export const getAnalysisOverview = () => {
   return request.get('/data-analytics/overview')
 }
+
+// 用户退出登录
+export const logout = () => {
+  return request.post('/user/logout')
+}

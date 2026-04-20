@@ -9,12 +9,8 @@ const formData = reactive({
   password: ''
 })
 const rules = reactive({
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' }
-  ],
-  password: [
-    { required: true, message: '请输入密码', trigger: 'blur' }
-  ]
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
 })
 
 // 登录
@@ -35,14 +31,12 @@ const submitForm = async (formEl) => {
         if (data.userInfo.userType === 2) {
           router.push('/back/dashboard')
         } else {
-
         }
       }
     } else {
       // 登录失败
     }
   })
-
 }
 </script>
 
@@ -65,13 +59,20 @@ const submitForm = async (formEl) => {
             <el-input v-model="formData.username" size="large" placeholder="请输入用户名或邮箱" />
           </el-form-item>
           <el-form-item label="密码" prop="password">
-            <el-input v-model="formData.password" placeholder="请输入密码" type="password" show-password />
+            <el-input
+              v-model="formData.password"
+              placeholder="请输入密码"
+              type="password"
+              show-password
+            />
           </el-form-item>
-          <el-button class="btn" size="large" type="primary" @click="submitForm(ruleFormRef)">登录</el-button>
-          <el-form-item class="footer">
-            <p>还没有账户？<router-link to="/auth/register">去注册</router-link></p>
-          </el-form-item>
+          <el-button class="btn" size="large" type="primary" @click="submitForm(ruleFormRef)"
+            >登录</el-button
+          >
         </el-form>
+        <div class="footer">
+          <p>还没有账户？<router-link to="/auth/register">去注册</router-link></p>
+        </div>
       </div>
     </div>
   </div>
