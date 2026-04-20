@@ -71,11 +71,11 @@ const backendRoutes = [
 const frontendRoutes = [
   {
     path: '/',
+    redirect: '/home',
     component: FrontendLayout,
     children: [
       {
-        path: '/',
-        redirect: '/home',
+        path: '/home',
         component: () => import('@/views/home/Home.vue')
       },
       {
