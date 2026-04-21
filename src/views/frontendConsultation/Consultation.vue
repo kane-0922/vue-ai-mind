@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { startSession, getSessionList, deleteSession, getSessionDetail } from '@/api/frontend'
 import { ElMessage } from 'element-plus'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
+import { fetchEventSource } from '@microsoft/fetch-event-source'
 
 const iconRobot = new URL('@/assets/images/robot-fill.png', import.meta.url).href
 const iconLike = new URL('@/assets/images/like.png', import.meta.url).href
@@ -22,7 +23,7 @@ const createNewFrontendSession = async () => {
 const currentSession = ref(null)
 const sessionList = ref([])
 // 定义对话消息
-const message = ref([])
+const messages = ref([])
 // 定义用户输入消息
 const userMessage = ref('')
 // 控制按钮是否禁用
@@ -40,9 +41,26 @@ const sendMessage = () => {
   // 若果没有会话或者是临时会话，就需要创建一个新的会话
   if (!currentSession.value || currentSession.value.status === 'TEMP') {
     startNewSession(message)
+  } else {
+    // 继续现有对话
+    messages.value.push({
+      id: Date.now(),
+      senderType: 1,
+      content: message,
+      createAt: new Date().toLocaleString()
+    })
+    // 开始流式对话
+    startAIResponse(currentSession.value.sessionId, message)
   }
 }
-const startNewSession = () => {
+
+const handleKeydown = (e) => {
+  if (e.key === 'Enter') {
+    sendMessage()
+  }
+}
+
+const startNewSession = (message) => {
   // 构建会话参数
   const sessionParams = {
     initialMessage: message
@@ -71,13 +89,92 @@ const startNewSession = () => {
     }
     // 更新会话列表
     getSessionPage()
+    // 添加初始用户消息
+    messages.value.push({
+      id: Date.now(),
+      senderType: 1,
+      content: message,
+      createAt: new Date().toLocaleString()
+    })
+    // 开始流式对话
+    startAIResponse(currentSession.value.sessionId, message)
   })
 }
 
-const handleKeydown = (e) => {
-  if (e.key === 'Enter') {
-    sendMessage()
+const startAIResponse = (sessionId, userMessage) => {
+  if (isAiTyping.value) {
+    ElMessage.error('AI助手正在输入中，请稍后...')
+    return
   }
+  isAiTyping.value = true
+
+  const aiMessage = {
+    id: `ai_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+    sederType: 2,
+    content: '',
+    createAt: new Date().toLocaleString()
+  }
+  messages.value.push(aiMessage)
+
+  // 调用流式接口
+  const ctrl = new AbortController() // 用来终止fetch请求
+  fetchEventSource('/api/psychological-chat/stream', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Token: localStorage.getItem('token'),
+      Accept: 'text/event-stream'
+    },
+    body: JSON.stringify({
+      sessionId,
+      userMessage
+    }),
+    signal: ctrl.signal,
+    onopen: (response) => {
+      console.log(response)
+      if (response.headers.get('Content-Type') !== 'text/event-stream') {
+        ElMessage.error('服务器返回非流式数据')
+      }
+    },
+    onmessage: (event) => {
+      const raw = event.data.trim()
+      if (!raw) return
+      const eventName = event.event
+      // 当前会话的AI消息
+      const aiMessage = messages.value[messages.value.length - 1]
+
+      if (eventName === 'done') {
+        isAiTyping.value = false
+        ctrl.abort()
+        return
+      }
+      const payload = JSON.parse(raw)
+      const ok = String(payload.code) === '200'
+      if (ok && payload.data && payload.data.content) {
+        aiMessage.content += payload.data.content
+      } else if (!ok) {
+        // 错误回复的显示
+        handleError(payload.message || 'AI助手响应失败')
+      }
+    },
+    onError: (error) => {
+      handleError(error || 'AI助手响应失败')
+      throw error
+    },
+    onclose: () => {
+      // 开始情绪分析
+    }
+  })
+}
+// 错误处理函数
+const handleError = (error) => {
+  // 当前会话的AI消息
+  const aiMessage = messages.value[messages.value.length - 1]
+  if (aiMessage) {
+    aiMessage.content = 'AI回复失败，请重试'
+  }
+  isAiTyping.value = false
+  ElMessage.error('AI回复失败，请重试')
 }
 
 // 获取咨询会话列表
@@ -104,8 +201,15 @@ const handleSessionClick = (session) => {
   // 获取会话消息详情
   getSessionDetail(session.id).then((res) => {
     console.log(res)
-    message.value = res
+    messages.value = res
   })
+  // 更新当前会话对象数据
+  const sessionData = {
+    sessionId: 'session_' + session.id,
+    status: 'ACTIVE',
+    sessionTitle: session.sessionTitle
+  }
+  currentSession.value = sessionData
 }
 
 // 处理换行逻辑
@@ -190,8 +294,9 @@ onMounted(() => {
           <el-icon><Plus /></el-icon>
         </el-button>
       </div>
+      <!-- 聊天消息区 -->
       <div class="chat-messages">
-        <div class="message-item ai-message" v-if="message.length === 0">
+        <div class="message-item ai-message" v-if="messages.length === 0">
           <div class="message-avatar">
             <el-image :src="iconRobot" style="width: 18px; height: 18px" />
           </div>
@@ -207,7 +312,7 @@ onMounted(() => {
         </div>
         <!-- 消息列表 -->
         <div
-          v-for="msg in message"
+          v-for="msg in messages"
           :key="msg.id"
           class="message-item"
           :class="msg.senderType === 1 ? 'user-message' : 'ai-message'"
@@ -217,15 +322,12 @@ onMounted(() => {
               v-if="msg.senderType === 1"
               :src="iconUser"
               style="width: 18px; height: 18px"
-            />
-            <el-image
-              v-if="msg.senderType === 2"
-              :src="iconRobot"
-              style="width: 18px; height: 18px"
-            />
+            ></el-image>
+            <el-image v-else :src="iconRobot" style="width: 18px; height: 18px"></el-image>
           </div>
           <div class="message-content">
             <div class="message-bubble">
+              <!-- AI正在思考中 -->
               <div
                 v-if="msg.senderType === 2 && isAiTyping && !msg.content"
                 class="typing-indicator"
@@ -264,8 +366,17 @@ onMounted(() => {
             @keydown="handleKeydown"
             clearable
           />
+          <div class="input-footer">
+            <span>按住Enter发送，Shift+Enter换行</span>
+            <span>{{ userMessage.length }}/500</span>
+          </div>
         </div>
-        <el-button type="primary" class="send-btn" @click="sendMessage">
+        <el-button
+          :disabled="!userMessage.trim() || userMessage.length > 500"
+          type="primary"
+          class="send-btn"
+          @click="sendMessage"
+        >
           <el-icon><Promotion /></el-icon>
         </el-button>
       </div>
