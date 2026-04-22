@@ -126,7 +126,7 @@ const rules = reactive({
     { required: true, message: '请确认密码', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
-        if (value !== registerForm.password) {
+        if (value !== formData.password) {
           callback(new Error('两次输入的密码不一致'))
         } else {
           callback()

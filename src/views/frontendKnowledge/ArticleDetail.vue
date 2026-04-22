@@ -1,6 +1,7 @@
 <script setup>
 import { getKnowledgeDetail } from '@/api/frontend'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+import { dayjs } from 'element-plus'
 
 const props = defineProps({
   id: String
@@ -8,11 +9,25 @@ const props = defineProps({
 
 const iconBook = new URL('@/assets/images/book.png', import.meta.url).href
 
+const articleDetail = ref({})
 onMounted(() => {
   getKnowledgeDetail(props.id).then((res) => {
-    console.log(res)
+    // console.log(res)
+    articleDetail.value = res
   })
 })
+
+const formatContent = (content) => {
+  if (!content) return ''
+
+  // 基本的HTML清理和格式化
+  let formatted = content
+    .replace(/\n/g, '<br>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+
+  return formatted
+}
 </script>
 
 <template>
@@ -27,10 +42,41 @@ onMounted(() => {
       <div class="diary-card">
         <p class="title">文章信息</p>
         <div class="sub-title">
-          <el-tag size="large" Plain type="primary">{{ res.categoryName }}</el-tag>
+          <el-tag size="large" class="category-tag">{{ articleDetail.categoryName }}</el-tag>
+          <div class="flex-box">
+            <el-icon><List /></el-icon>
+            <span>{{ dayjs(articleDetail.updatedAt).format('YYYY-MM-DD') }}</span>
+          </div>
+        </div>
+        <h1 class="article-title">{{ articleDetail.title }}</h1>
+        <div class="summary-content" v-if="articleDetail.summary">
+          <p>{{ articleDetail.summary }}</p>
+        </div>
+        <div :style="{ marginTop: '20px' }" class="flex-box">
+          <div class="item flex-box">
+            <el-icon><Avatar /></el-icon>
+            <span>{{ articleDetail.authorName }}</span>
+          </div>
+          <div class="item flex-box">
+            <el-icon><Platform /></el-icon>
+            <span>{{ articleDetail.readCount }} 次阅读</span>
+          </div>
         </div>
       </div>
-      <div class="diary-card"></div>
+      <div class="diary-card">
+        <div class="title">正文内容</div>
+        <div class="content-wrapper">
+          <div v-html="formatContent(articleDetail.content)"></div>
+        </div>
+        <div class="tags-content" v-if="articleDetail.tagArray && articleDetail.tagArray.length">
+          <h4 class="title">相关标签</h4>
+          <div class="tags-list">
+            <el-tag v-for="tag in articleDetail.tagArray" :key="tag" effect="light" type="info">
+              {{ tag }}
+            </el-tag>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

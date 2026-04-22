@@ -2,6 +2,7 @@
 import { ref, reactive } from 'vue'
 import { login } from '@/api/admin'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 
 const ruleFormRef = ref()
 const formData = reactive({
@@ -23,7 +24,7 @@ const submitForm = async (formEl) => {
       // 登录成功
       const data = await login(formData)
       if (!data.token) {
-        return console.error('登录失败')
+        return ElMessage.error(data.message || '登录失败')
       } else {
         localStorage.setItem('token', data.token)
         localStorage.setItem('userInfo', JSON.stringify(data.userInfo))
@@ -36,6 +37,7 @@ const submitForm = async (formEl) => {
       }
     } else {
       // 登录失败
+      ElMessage.error('登录失败')
     }
   })
 }
@@ -65,6 +67,7 @@ const submitForm = async (formEl) => {
               placeholder="请输入密码"
               type="password"
               show-password
+              size="large"
             />
           </el-form-item>
           <el-button class="btn" size="large" type="primary" @click="submitForm(ruleFormRef)"
