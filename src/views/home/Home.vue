@@ -11,8 +11,20 @@ const iconUrl = new URL('@/assets/images/robot-fill.png', import.meta.url).href
           <span class="highlight-text">化孤独为慰藉</span>
           <p class="description">与我们分享你的情感，我们将为你提供专业的心理健康支持。</p>
           <div class="hero-actions">
-            <el-button type="primary" color="#fff" size="large">开始倾述，获得陪伴</el-button>
-            <el-button size="large" style="border-color: #fff" color="transparent">
+            <el-button
+              type="primary"
+              color="#fff"
+              size="large"
+              @click="$router.push('/consultation')"
+            >
+              开始倾述，获得陪伴
+            </el-button>
+            <el-button
+              size="large"
+              style="border-color: #fff"
+              color="transparent"
+              @click="$router.push('/emotion-diary')"
+            >
               记录心情，释放情感
             </el-button>
           </div>

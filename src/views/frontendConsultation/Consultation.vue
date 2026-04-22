@@ -479,7 +479,7 @@ onMounted(() => {
             v-model="userMessage"
             placeholder="请输入您想分享的内容..."
             type="textarea"
-            :row="3"
+            :rows="3"
             :disabled="isAiTyping"
             @keydown="handleKeydown"
             clearable
