@@ -34,3 +34,13 @@ export const getSessionEmotion = (sessionId) => {
 export const addEmotionalDiary = (data) => {
   return request.post('/emotion-diary', data)
 }
+
+// 查询知识文章列表
+export const getKnowledgeList = (params) => {
+  return request.get('/knowledge/article/page', { params })
+}
+
+// 查询知识文章详情
+export const getKnowledgeDetail = (id) => {
+  return request.get(`/knowledge/article/${id}`)
+}

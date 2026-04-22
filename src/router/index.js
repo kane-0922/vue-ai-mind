@@ -89,6 +89,11 @@ const frontendRoutes = [
       {
         path: 'knowledge',
         component: () => import('@/views/frontendKnowledge/Knowledge.vue')
+      },
+      {
+        path: 'knowledge/article/:id',
+        component: () => import('@/views/frontendKnowledge/ArticleDetail.vue'),
+        props: true
       }
     ]
   }
